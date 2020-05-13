@@ -1641,6 +1641,18 @@ CONTAINS
        RETURN
     ENDIF
 
+    CALL ExtDat_Set( am_I_Root,     HcoState, ExtState%TSOIL1,               &
+                    'TSOIL1_FOR_EMIS', HMRC,     FIRST,                      &
+                    State_Met%TSOIL1                                        )
+
+    ! Trap potential errors
+    IF ( HMRC /= HCO_SUCCESS ) THEN
+       RC     = HMRC
+       ErrMsg = 'Error encountered in "ExtDat_Set( TSOIL1_FOR_EMIS )"!'
+       CALL GC_Error( ErrMsg, RC, ThisLoc, Instr )
+       RETURN
+    ENDIF
+
     ! TSKIN
     CALL ExtDat_Set( am_I_Root,       HcoState, ExtState%TSKIN,              &
                     'TSKIN_FOR_EMIS', HMRC,     FIRST,                       &

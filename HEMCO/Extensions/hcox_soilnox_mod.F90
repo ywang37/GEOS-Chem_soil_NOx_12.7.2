@@ -867,6 +867,7 @@ CONTAINS
 
     ! Activate required met fields
     ExtState%T2M%DoUse       = .TRUE.
+    ExtState%TSOIL1%DoUse    = .TRUE.
     ExtState%GWETTOP%DoUse   = .TRUE.
     ExtState%SUNCOS%DoUse    = .TRUE.
     ExtState%U10M%DoUse      = .TRUE.
@@ -1042,7 +1043,7 @@ CONTAINS
 !
     INTEGER :: K
     REAL(hp)  :: BASE_TERM, CRF_TERM,  PULSE
-    REAL(hp)  :: TC,        TEMP_TERM, WINDSQR
+    REAL(hp)  :: TC,        TC1,       TEMP_TERM, WINDSQR
     REAL(hp)  :: WET_TERM,  A_FERT,    A_BIOM
     REAL(hp)  :: LAI,       SUNCOS,    GWET
     REAL(hp)  :: ARID,      NARID
@@ -1057,6 +1058,7 @@ CONTAINS
 
     ! Surface temperature [C]
     TC             = ExtState%T2M%Arr%Val(I,J) - 273.15e+0_hp
+    TC1            = ExtState%TSOIL1%Arr%Val(I,J) - 273.15e+0_hp
 
     ! Surface wind speed, squared
     WINDSQR        = ExtState%U10M%Arr%Val(I,J)**2 + &
@@ -1088,7 +1090,8 @@ CONTAINS
 
        ! Temperature-dependent term of soil NOx emissions [unitless]
        ! Use GWET instead of climo wet/dry
-       TEMP_TERM = SOILTEMP( K , TC, GWET)
+       !TEMP_TERM = SOILTEMP( K , TC, GWET)
+       TEMP_TERM = SOILTEMP( K , TC1, GWET)
 
        ! Soil moisture scaling of soil NOx emissions
        ARID     = Inst%CLIMARID(I,J)
@@ -1741,19 +1744,19 @@ CONTAINS
     ! Save surface air temp in shadow variable TMMP
     TMMP   = TC
 
-    ! DRY
-    IF ( GWET < 0.3e+0_hp ) THEN
-
-       ! Convert surface air temperature to model temperature
-       ! by adding 5 degrees C to model temperature
-       TMMP = TMMP + 5e+0_hp
-
-    ! WET
-    ELSE
-
-       TMMP = SOILTA(NN) * TMMP + SOILTB(NN)
-
-    ENDIF
+!    ! DRY
+!    IF ( GWET < 0.3e+0_hp ) THEN
+!
+!       ! Convert surface air temperature to model temperature
+!       ! by adding 5 degrees C to model temperature
+!       TMMP = TMMP + 5e+0_hp
+!
+!    ! WET
+!    ELSE
+!
+!       TMMP = SOILTA(NN) * TMMP + SOILTB(NN)
+!
+!    ENDIF
 
     !==============================================================
     ! 2) Compute Temperature Dependence
@@ -1772,9 +1775,13 @@ CONTAINS
     ELSE
 
        ! Caps temperature response at 30C
-       IF ( TMMP >= 30.e+0_hp ) TMMP = 30.e+0_hp
-
-       SOIL_TEMP =  EXP( 0.103 * TMMP )
+       !IF ( TMMP >= 30.e+0_hp ) TMMP = 30.e+0_hp
+       IF ( TMMP >= 40.e+0_hp ) TMMP = 40.e+0_hp
+       IF ( TMMP <= 20.e+0_hp ) SOIL_TEMP =  EXP( 0.103 * TMMP )
+       IF ( TMMP > 20.e+0_hp ) THEN
+          SOIL_TEMP=-0.009*(TMMP**3)+0.837*(TMMP**2)+(-22.527)*TMMP+196.149
+       ENDIF
+       !SOIL_TEMP =  EXP( 0.103 * TMMP )
 
     ENDIF
 

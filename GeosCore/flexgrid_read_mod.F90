@@ -489,6 +489,11 @@ CONTAINS
     CALL Get_Met_2D( State_Grid, Q, TRIM(v_name), t_index=t_index )
     State_Met%TS = Q
 
+    ! Read TSOIL1
+    v_name = "TSOIL1"
+    CALL Get_Met_2D( State_Grid, Q, TRIM(v_name), t_index=t_index )
+    State_Met%TSOIL1 = Q
+
     ! Read U10M
     v_name = "U10M"
     CALL Get_Met_2D( State_Grid, Q, TRIM(v_name), t_index=t_index )

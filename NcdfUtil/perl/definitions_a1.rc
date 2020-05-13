@@ -246,6 +246,11 @@ T2M:long_name           = Temperature 2m above displacement height
 T2M:units               = K
 T2M:gamap_category      = GMAO-2D
 #-
+TSOIL1                  = REAL*4::lon,lat,time
+TSOIL1:long_name        = Soil Temperature
+TSOIL1:units            = K
+TSOIL1:gamap_category   = GMAO-2D
+#-
 U10M                    = REAL*4::lon,lat,time
 U10M:long_name          = Eastward wind 10m above displacement height
 U10M:units              = m s-1
